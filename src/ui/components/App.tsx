@@ -61,6 +61,7 @@ const App = ({ addOnUISdk, sandboxProxy }: { addOnUISdk: AddOnSDKAPI; sandboxPro
     const [tolerance, setTolerance] = useState(8);
     const [brandFonts, setBrandFonts] = useState<BrandFonts>({ heading: null, body: null });
     const [voice, setVoice] = useState<BrandVoice>(EMPTY_VOICE);
+    const [brandGeneration, setBrandGeneration] = useState(0);
     const [audit, setAudit] = useState<AuditResult | null>(null);
     const [status, setStatus] = useState("");
 
@@ -217,7 +218,7 @@ const App = ({ addOnUISdk, sandboxProxy }: { addOnUISdk: AddOnSDKAPI; sandboxPro
             setDraft(null);
             setFile(null);
             setSiteUrl("");
-            setVoice(EMPTY_VOICE);
+            forgetPreviousBrand();
             setTab("kit");
             setStep("kit");
             return adopted
@@ -225,11 +226,20 @@ const App = ({ addOnUISdk, sandboxProxy }: { addOnUISdk: AddOnSDKAPI; sandboxPro
                 : "Brand kit saved. Click a color to apply it to your selection.";
         });
 
+    // The Copy tab holds its generated suggestions in its own state, and today they happen
+    // to die because switching tab unmounts it. Keying it to the generation says so out
+    // loud, so copy written for the last logo cannot outlive it if tabs ever stop
+    // unmounting — kept mounted for scroll position, say, or all four rendered and hidden.
+    function forgetPreviousBrand() {
+        setVoice(EMPTY_VOICE);
+        setBrandGeneration(n => n + 1);
+    }
+
     function startFromColor() {
         setPalette(generatePalette(base, harmony));
         setLogo(null);
         setAudit(null);
-        setVoice(EMPTY_VOICE);
+        forgetPreviousBrand();
         setTab("kit");
         setStep("kit");
         setStatus("");
@@ -239,7 +249,7 @@ const App = ({ addOnUISdk, sandboxProxy }: { addOnUISdk: AddOnSDKAPI; sandboxPro
         setFile(null);
         setSiteUrl("");
         setDraft(null);
-        setVoice(EMPTY_VOICE);
+        forgetPreviousBrand();
         setStatus("");
         setStep("upload");
     }
@@ -545,7 +555,7 @@ const App = ({ addOnUISdk, sandboxProxy }: { addOnUISdk: AddOnSDKAPI; sandboxPro
             {tab === "fonts" && <FontsTab sandboxProxy={sandboxProxy} fonts={brandFonts} logo={logo} onChange={setBrandFonts} run={run} />}
 
             {tab === "copy" && (
-                <CopyTab sandboxProxy={sandboxProxy} voice={voice} fonts={brandFonts} primaryHex={palette[0]?.hex} onVoiceChange={setVoice} run={run} />
+                <CopyTab key={brandGeneration} sandboxProxy={sandboxProxy} voice={voice} fonts={brandFonts} primaryHex={palette[0]?.hex} onVoiceChange={setVoice} run={run} />
             )}
 
             {tab === "audit" && (
