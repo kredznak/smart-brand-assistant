@@ -3,6 +3,7 @@
 // the panel's own code, not Express.
 
 export const RuntimeType = { documentSandbox: "documentSandbox", panel: "panel" };
+export const AppEvent = { themechange: "themechange" };
 
 const called = [];
 window.__called = called;
@@ -48,7 +49,17 @@ export default {
     ready: Promise.resolve(),
     instance: {
         runtime: { apiProxy: async () => sandbox },
-        clientStorage: { getItem: async () => savedKit, setItem: async () => {} }
+        clientStorage: {
+            // SMOKE_NO_KIT drives the first-run screens, which a saved kit skips past.
+            getItem: async () => (globalThis.SMOKE_NO_KIT ? null : savedKit),
+            setItem: async () => {}
+        }
     },
-    app: { document: { addImage: async () => {} } }
+    app: {
+        document: { addImage: async () => {} },
+        // The panel reads the theme once at startup and then listens. SMOKE_THEME lets a
+        // run drive the panel in either theme without a real Express.
+        ui: { theme: globalThis.SMOKE_THEME || "light" },
+        on: () => {}
+    }
 };

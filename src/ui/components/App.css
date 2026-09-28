@@ -1,4 +1,45 @@
-:root { --bg: #17171c; --surface: #24242b; --line: #3a3a44; --text: #ffffff; --muted: #a9a9b4; --brand: #f7d046; --brand-ink: #17171c; }
+/* Light is the default because Express is, and because the panel paints before the SDK
+   reports a theme — defaulting to dark would flash a dark panel in a light app.
+   --brand is a fill and keeps its dark ink in both themes. --brand-edge is the same
+   yellow used as text, border or focus ring, which needs to darken on white: #f7d046 on
+   white is about 1.7:1 and unreadable. */
+:root {
+    --bg: #ffffff;
+    --surface: #f2f2f5;
+    --line: #d9d9de;
+    --text: #17171c;
+    --muted: #5a5a66;
+    --brand: #f7d046;
+    --brand-ink: #17171c;
+    --brand-edge: #7a5d00;
+    --edge: rgba(0, 0, 0, 0.18);
+    --logo-card: #f2f2f5;
+    --logo-card-line: #d9d9de;
+    --neutral-bg: #e6e6eb;
+    --neutral-ink: #17171c;
+    --ok-bg: #d8f0e2;
+    --ok-ink: #14663c;
+    --off-bg: #fadbd8;
+    --off-ink: #9b2c1f;
+}
+
+:root[data-theme="dark"] {
+    --bg: #17171c;
+    --surface: #24242b;
+    --line: #3a3a44;
+    --text: #ffffff;
+    --muted: #a9a9b4;
+    --brand-edge: #f7d046;
+    --edge: rgba(255, 255, 255, 0.18);
+    --logo-card: #ececf1;
+    --logo-card-line: transparent;
+    --neutral-bg: #d9d9de;
+    --neutral-ink: #17171c;
+    --ok-bg: #143d2a;
+    --ok-ink: #7be0a8;
+    --off-bg: #4a1d1a;
+    --off-ink: #ff9d94;
+}
 html, body, #root { height: 100%; }
 body { margin: 0; background: var(--bg); color: var(--text); font-family: adobe-clean, "Source Sans Pro", -apple-system, "Segoe UI", sans-serif; font-size: 13px; }
 
@@ -14,9 +55,12 @@ img { -webkit-user-drag: none; user-drag: none; }
 .screen { min-height: 100%; box-sizing: border-box; padding: 20px 16px; display: flex; flex-direction: column; gap: 14px; }
 h1 { margin: 0; font-size: 18px; font-weight: 400; }
 header, .hero { text-align: center; }
-/* The mark is white with a transparent ground, which suits the dark panel. It sits
-   beside the wordmark, so it stays decorative rather than being announced twice. */
-.brandMark { display: block; width: 104px; height: 104px; margin: 0 auto 14px; object-fit: contain; }
+/* The mark is white on a transparent ground, so on a light panel it is invisible rather
+   than merely low contrast. Inverting turns it black, which is what the one asset can do
+   without shipping a second file. It sits beside the wordmark, so it stays decorative
+   rather than being announced twice. */
+.brandMark { display: block; width: 104px; height: 104px; margin: 0 auto 14px; object-fit: contain; filter: invert(1); }
+:root[data-theme="dark"] .brandMark { filter: none; }
 .brandMark.small { width: 80px; height: 80px; margin-bottom: 10px; }
 header p, .hero p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
 .hero { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 0 12px; }
@@ -30,12 +74,12 @@ button { font: inherit; cursor: pointer; }
 .primary, .secondary { height: 40px; border-radius: 20px; font-weight: 700; padding: 0 20px; }
 .primary { border: 0; background: var(--brand); color: var(--brand-ink); }
 .primary:disabled { opacity: 0.4; cursor: default; }
-.secondary { border: 1px solid var(--brand); background: none; color: var(--brand); }
+.secondary { border: 1px solid var(--brand-edge); background: none; color: var(--brand-edge); }
 .ghost { height: 40px; border: 0; background: none; color: var(--text); font-weight: 700; padding: 0 16px; }
 .link { border: 0; background: none; color: var(--muted); text-decoration: underline; padding: 4px 0; align-self: center; }
-button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--brand-edge); outline-offset: 2px; }
 
-.logoCard { background: #ececf1; border-radius: 16px; padding: 14px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.logoCard { background: var(--logo-card); border: 1px solid var(--logo-card-line); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
 /* The preview is only there to confirm you picked the right file, and the whole screen
    scrolls as one column, so a fixed height pushes the Analyze button off the bottom in a
    short panel. Capping it against the panel's own height keeps the button reachable
@@ -44,13 +88,13 @@ button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-v
 .logoCard.small { padding: 12px; }
 .logoCard.small img { max-height: 72px; }
 .resultSwatches { display: flex; gap: 10px; }
-.resultSwatch { width: 36px; height: 36px; border-radius: 4px; border: 1px solid rgba(0, 0, 0, 0.12); }
+.resultSwatch { width: 36px; height: 36px; border-radius: 4px; border: 1px solid var(--edge); }
 .resultList { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .resultList li { display: flex; align-items: center; gap: 10px; }
 .resultList code { margin-left: auto; color: var(--muted); font-size: 12px; }
 
 .fileRow { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.fileButton { height: 28px; padding: 0 12px; border: 0; border-radius: 4px; background: #d9d9de; color: #17171c; font-weight: 600; flex: none; }
+.fileButton { height: 28px; padding: 0 12px; border: 0; border-radius: 4px; background: var(--neutral-bg); color: var(--neutral-ink); font-weight: 600; flex: none; }
 .fileName { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hint { margin: 0; font-size: 12px; line-height: 1.4; color: var(--muted); }
 .fieldLabel { font-weight: 700; }
@@ -61,7 +105,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-v
 
 .tabs { display: flex; border-bottom: 1px solid var(--line); }
 .tab { flex: 1; padding: 8px 0; border: 0; background: none; font-weight: 700; color: var(--muted); border-bottom: 2px solid transparent; }
-.tab.active { color: var(--text); border-bottom-color: var(--brand); }
+.tab.active { color: var(--text); border-bottom-color: var(--brand-edge); }
 
 .field { display: flex; flex-direction: column; gap: 6px; font-weight: 600; }
 .row { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
@@ -75,18 +119,18 @@ summary { cursor: pointer; font-weight: 600; }
 
 .swatches, .audit { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .swatches li { display: flex; gap: 8px; align-items: center; }
-.swatch { flex: 1; height: 40px; border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 8px; font-weight: 700; text-align: left; padding: 0 12px; }
+.swatch { flex: 1; height: 40px; border: 1px solid var(--edge); border-radius: 8px; font-weight: 700; text-align: left; padding: 0 12px; }
 .audit li { display: flex; align-items: center; gap: 8px; padding: 8px; background: var(--surface); border-radius: 8px; }
 .auditText { display: flex; flex-direction: column; flex: 1; min-width: 0; }
 small { color: var(--muted); font-size: 11px; }
-.chip { width: 24px; height: 24px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.25); flex: none; display: inline-block; }
+.chip { width: 24px; height: 24px; border-radius: 6px; border: 1px solid var(--edge); flex: none; display: inline-block; }
 .chip.tiny { width: 10px; height: 10px; border-radius: 3px; vertical-align: -1px; }
 .fixTo { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
 .badge { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; white-space: nowrap; }
-.badge.ok { background: #143d2a; color: #7be0a8; }
-.badge.off { background: #4a1d1a; color: #ff9d94; }
+.badge.ok { background: var(--ok-bg); color: var(--ok-ink); }
+.badge.off { background: var(--off-bg); color: var(--off-ink); }
 .status { margin: 0; min-height: 16px; font-size: 12px; color: var(--muted); }
-.notice { margin: 0; padding: 8px 10px; border-radius: 8px; background: #4a1d1a; color: #ff9d94; font-size: 12px; line-height: 1.4; }
+.notice { margin: 0; padding: 8px 10px; border-radius: 8px; background: var(--off-bg); color: var(--off-ink); font-size: 12px; line-height: 1.4; }
 /* The tabs scroll well past the panel, and this is the only feedback an action gives.
    Left in the flow it lands below the fold, so a click looks like it did nothing. */
 .status.pinned { position: sticky; bottom: 0; z-index: 1; padding: 8px 0 4px; background: var(--bg); box-shadow: 0 -8px 8px -6px var(--bg); }
@@ -105,10 +149,10 @@ small { color: var(--muted); font-size: 11px; }
 .pairings { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .pairing { text-align: left; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: none; color: var(--text); display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .pairing small { font-weight: 400; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.pairing.active { border-color: var(--brand); background: rgba(247, 208, 70, 0.1); }
+.pairing.active { border-color: var(--brand-edge); background: rgba(247, 208, 70, 0.14); }
 .text { box-sizing: border-box; width: 100%; padding: 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--text); font: inherit; font-weight: 400; resize: vertical; }
 input.text { height: 32px; padding: 0 8px; }
-.text::placeholder { color: #77777f; }
+.text::placeholder { color: var(--muted); opacity: 0.8; }
 .row.noMargin { margin-top: 0; align-items: flex-end; }
 .grow { flex: 1; min-width: 0; }
 .copyList { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
