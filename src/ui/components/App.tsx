@@ -39,6 +39,11 @@ interface Draft {
 type Step = "loading" | "onboarding" | "upload" | "results" | "kit";
 type Tab = "kit" | "fonts" | "copy" | "audit";
 
+// Copy written for the last logo has nothing to do with the next one, so the voice is
+// cleared wherever a new brand starts. Left alone it quietly produces suggestions for a
+// brand the user has already moved on from.
+const EMPTY_VOICE: BrandVoice = { brandName: "", description: "", tone: "Friendly" };
+
 const TABS: { id: Tab; label: string }[] = [
     { id: "kit", label: "Colors" },
     { id: "fonts", label: "Fonts" },
@@ -55,7 +60,7 @@ const App = ({ addOnUISdk, sandboxProxy }: { addOnUISdk: AddOnSDKAPI; sandboxPro
     const [harmony, setHarmony] = useState<Harmony>("complementary");
     const [tolerance, setTolerance] = useState(8);
     const [brandFonts, setBrandFonts] = useState<BrandFonts>({ heading: null, body: null });
-    const [voice, setVoice] = useState<BrandVoice>({ brandName: "", description: "", tone: "Friendly" });
+    const [voice, setVoice] = useState<BrandVoice>(EMPTY_VOICE);
     const [audit, setAudit] = useState<AuditResult | null>(null);
     const [status, setStatus] = useState("");
 
@@ -212,6 +217,7 @@ const App = ({ addOnUISdk, sandboxProxy }: { addOnUISdk: AddOnSDKAPI; sandboxPro
             setDraft(null);
             setFile(null);
             setSiteUrl("");
+            setVoice(EMPTY_VOICE);
             setTab("kit");
             setStep("kit");
             return adopted
@@ -223,6 +229,7 @@ const App = ({ addOnUISdk, sandboxProxy }: { addOnUISdk: AddOnSDKAPI; sandboxPro
         setPalette(generatePalette(base, harmony));
         setLogo(null);
         setAudit(null);
+        setVoice(EMPTY_VOICE);
         setTab("kit");
         setStep("kit");
         setStatus("");
@@ -232,6 +239,7 @@ const App = ({ addOnUISdk, sandboxProxy }: { addOnUISdk: AddOnSDKAPI; sandboxPro
         setFile(null);
         setSiteUrl("");
         setDraft(null);
+        setVoice(EMPTY_VOICE);
         setStatus("");
         setStep("upload");
     }
