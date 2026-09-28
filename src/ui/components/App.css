@@ -1,6 +1,16 @@
 :root { --bg: #17171c; --surface: #24242b; --line: #3a3a44; --text: #ffffff; --muted: #a9a9b4; --brand: #f7d046; --brand-ink: #17171c; }
 html, body, #root { height: 100%; }
 body { margin: 0; background: var(--bg); color: var(--text); font-family: adobe-clean, "Source Sans Pro", -apple-system, "Segoe UI", sans-serif; font-size: 13px; }
+
+/* Adobe review, issue 1: panel text could be selected and pasted onto the canvas, which
+   put interface labels into the user's document. None of this panel is content — the
+   supported ways to move something into the document are the buttons that say so — so
+   nothing is selectable except the fields the user types into. */
+body { user-select: none; -webkit-user-select: none; }
+input, textarea { user-select: text; -webkit-user-select: text; }
+/* An image dragged into the canvas lands there as an image, which is the same hole by
+   another route. The logo preview is there to confirm the file, not to be placed. */
+img { -webkit-user-drag: none; user-drag: none; }
 .screen { min-height: 100%; box-sizing: border-box; padding: 20px 16px; display: flex; flex-direction: column; gap: 14px; }
 h1 { margin: 0; font-size: 18px; font-weight: 400; }
 header, .hero { text-align: center; }
