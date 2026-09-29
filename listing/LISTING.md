@@ -214,7 +214,12 @@ Two further requirements come with that answer, and both are already met:
 
 **Supported UI languages** — English.
 
-**Release notes** (version 1.0.0)
+**Release notes** (version 1.0.1)
+
+Nothing has been published yet, so the notes below still describe a first release. The
+version was moved off 1.0.0 because the first submission was reviewed at that number: with
+both packages reading 1.0.0 there was no way for a reviewer, or for us, to tell which build
+was installed, and the resubmission came back saying the fixes could not be seen.
 
 ```
 First release.
