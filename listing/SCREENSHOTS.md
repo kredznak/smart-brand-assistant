@@ -148,9 +148,11 @@ That gap is closed: the set was recaptured in light mode on 28 September 2026 af
 asked the panel to follow the Express theme, so all five raws exist again, including the
 `3. fonts.png` that had been lost.
 
-`raw/` is gitignored, which is how the old one went missing in the first place. The
-captures are only ever on disk, so keep a copy somewhere outside `raw/` until the listing
-is accepted -- a capture is a few minutes of setting up a document, not a few seconds.
+`raw/` is gitignored and stays a working directory: drop captures in, run the tool, upload
+what comes out. The captures this listing was built from are committed separately, in
+[`raw-light/`](screenshots/raw-light), so a recapture is never forced by a lost file
+again. They are 644 KB for the five, which is worth it against setting the document up
+once more.
 
 These five were captured at 1240x715, smaller than the 1360x800 target on both sides, so
 the tool leaves them at their own resolution and pads out to size rather than blowing them

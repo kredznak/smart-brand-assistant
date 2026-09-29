@@ -3,6 +3,9 @@ dist/
 node_modules/
 dist.zip
 
-# Raw screen captures: big, and superseded by the processed 1360x800 versions.
+# raw/ is a working directory: drop captures in, run the tool, and what comes out is what
+# ships. The captures the current listing was actually built from are kept in
+# listing/screenshots/raw-light/ instead, because one was lost from here once and a
+# recapture costs a document setup rather than a moment.
 listing/screenshots/raw/*
 !listing/screenshots/raw/.gitkeep
