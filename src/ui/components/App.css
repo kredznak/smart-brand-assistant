@@ -115,7 +115,44 @@ button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-v
 .field { display: flex; flex-direction: column; gap: 6px; font-weight: 600; }
 .row { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
 input[type="color"] { width: 40px; height: 32px; padding: 0; border: 1px solid var(--line); border-radius: 6px; background: none; cursor: pointer; flex: none; }
-input[type="range"] { accent-color: var(--brand); }
+/* accent-color colours the filled part but leaves the rest of the track to the browser,
+   which drew it near-black on a white panel whatever color-scheme said. Drawing the whole
+   track ourselves is the only way it follows the theme; --filled comes from the input. */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 16px;
+    background: none;
+    cursor: pointer;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(to right, var(--brand) var(--filled, 50%), var(--line) var(--filled, 50%));
+}
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    margin-top: -5px;
+    border-radius: 50%;
+    background: var(--brand);
+    border: 1px solid var(--brand-edge);
+}
+input[type="range"]::-moz-range-track {
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(to right, var(--brand) var(--filled, 50%), var(--line) var(--filled, 50%));
+}
+input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: 1px solid var(--brand-edge);
+    border-radius: 50%;
+    background: var(--brand);
+}
 .hex, select { height: 32px; box-sizing: border-box; padding: 0 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--text); font: inherit; min-width: 0; }
 select { flex: 1; }
 .hex { width: 86px; text-transform: uppercase; font-variant-numeric: tabular-nums; }

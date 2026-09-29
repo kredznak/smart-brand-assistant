@@ -566,6 +566,9 @@ const App = ({ addOnUISdk, sandboxProxy }: { addOnUISdk: AddOnSDKAPI; sandboxPro
                             type="range"
                             min={1}
                             max={25}
+                            /* The filled part of the track is drawn by us, not the browser, so it needs to
+                               know how far along the value is. See input[type="range"] in App.css. */
+                            style={{ ["--filled" as string]: `${((tolerance - 1) / 24) * 100}%` }}
                             value={tolerance}
                             onChange={e => {
                                 setTolerance(Number(e.target.value));
