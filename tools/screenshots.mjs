@@ -62,8 +62,17 @@ for (const name of files) {
     const raw = size(out);
     // Fit inside the target: whichever side runs out first decides the scale.
     const scale = Math.min(W / raw.w, H / raw.h);
-    if (raw.w / raw.h > W / H) sips("--resampleWidth", String(W), out);
-    else sips("--resampleHeight", String(H), out);
+    // A capture smaller than the target on both sides is left at its own resolution and
+    // padded up to size. Blowing it up to fill the frame only invents pixels: the file
+    // would be the same 1360x800 either way, but softer. Padding is white, and the panel
+    // sits on white, so the seam does not read as a border.
+    if (scale >= 1) {
+        // nothing to resample
+    } else if (raw.w / raw.h > W / H) {
+        sips("--resampleWidth", String(W), out);
+    } else {
+        sips("--resampleHeight", String(H), out);
+    }
 
     const fitted = size(out);
     sips("--padToHeightWidth", String(H), String(W), "--padColor", PAD, out);
@@ -77,7 +86,7 @@ for (const name of files) {
     const barPct = Math.round((bars / (final.w - fitted.w > 0 ? W : H)) * 100);
 
     const notes = [];
-    if (scale > 1) { notes.push(`UPSCALED ${scale.toFixed(2)}x, will look soft - recapture larger`); warnings++; }
+    if (scale > 1) { notes.push(`padded, not upscaled - captured ${raw.w}x${raw.h}, smaller than the target`); }
     if (barPct > 15) { notes.push(`${barPct}% padding - recapture closer to 17:10`); warnings++; }
     if (final.w !== W || final.h !== H) { notes.push(`WRONG SIZE ${final.w}x${final.h}`); warnings++; }
 

@@ -152,9 +152,14 @@ asked the panel to follow the Express theme, so all five raws exist again, inclu
 captures are only ever on disk, so keep a copy somewhere outside `raw/` until the listing
 is accepted -- a capture is a few minutes of setting up a document, not a few seconds.
 
-These five were captured at 1240x715 against a 1360x800 target, so the tool upscaled them
-1.10x and said so. That is mild enough to ship. To avoid it, capture the window with
-Cmd+Shift+4 then Space on a Retina display: the result is 2x and downscales cleanly.
+These five were captured at 1240x715, smaller than the 1360x800 target on both sides, so
+the tool leaves them at their own resolution and pads out to size rather than blowing them
+up. The file is 1360x800 either way; upscaling would only have invented pixels and made it
+soft. The padding is white and the panel sits on white, so the seam does not read as a
+border.
+
+A capture larger than the target is still scaled down, which is the better case and loses
+nothing: on a Retina display, Cmd+Shift+4 then Space over the window gives a 2x image.
 
 ## Why the tool exists
 
