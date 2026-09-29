@@ -144,8 +144,17 @@ Nothing about the add-on's own interface is altered, and the files in `raw/` are
 written to, so they stay as evidence of what was actually on screen. The code is in
 [`tools/lib/clean-capture.mjs`](../tools/lib/clean-capture.mjs).
 
-One gap: `raw/3. fonts.png` was lost, so that shot cannot be regenerated. The version in
-`listing/screenshots/` is the finished article. Recapture it if it ever needs changing.
+That gap is closed: the set was recaptured in light mode on 28 September 2026 after Adobe
+asked the panel to follow the Express theme, so all five raws exist again, including the
+`3. fonts.png` that had been lost.
+
+`raw/` is gitignored, which is how the old one went missing in the first place. The
+captures are only ever on disk, so keep a copy somewhere outside `raw/` until the listing
+is accepted -- a capture is a few minutes of setting up a document, not a few seconds.
+
+These five were captured at 1240x715 against a 1360x800 target, so the tool upscaled them
+1.10x and said so. That is mild enough to ship. To avoid it, capture the window with
+Cmd+Shift+4 then Space on a Retina display: the result is 2x and downscales cleanly.
 
 ## Why the tool exists
 
