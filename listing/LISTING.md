@@ -214,12 +214,14 @@ Two further requirements come with that answer, and both are already met:
 
 **Supported UI languages** — English.
 
-**Release notes** (version 1.0.1)
+**Release notes** (version 1.0.2)
 
 Nothing has been published yet, so the notes below still describe a first release. The
-version was moved off 1.0.0 because the first submission was reviewed at that number: with
-both packages reading 1.0.0 there was no way for a reviewer, or for us, to tell which build
-was installed, and the resubmission came back saying the fixes could not be seen.
+version number has moved twice for the benefit of review, not because anything shipped:
+off 1.0.0 because the first submission was reviewed at that number and the resubmission
+came back saying the fixes could not be seen, and now off 1.0.1 because that build was
+rejected for two bugs — an unsupported file left a broken image in the logo preview, and
+"Add palette to page" could place swatches outside the canvas. Both are fixed here.
 
 ```
 First release.
