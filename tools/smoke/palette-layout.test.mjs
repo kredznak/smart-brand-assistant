@@ -30,7 +30,7 @@ try {
     // non-zero even when it has written the file, so the emitted file is the real test.
 }
 
-const { paletteLayout, SWATCH_MAX_SIZE } = await import(pathToFileURL(join(out, "paletteLayout.js")).href);
+const { paletteLayout, swatchCenter, SWATCH_MAX_SIZE } = await import(pathToFileURL(join(out, "paletteLayout.js")).href);
 
 // Real Express page sizes, then sizes small enough to break a fixed-width row, then
 // shapes that are only here to prove the arithmetic cannot produce a nonsense answer.
@@ -70,9 +70,23 @@ for (const [width, height, name] of PAGES) {
         check(l.top >= 0, `${where}: row starts above the top edge (${l.top})`);
         check(right <= width + 1e-9, `${where}: row ends ${right - width} past the right edge`);
         check(l.top + l.size <= height + 1e-9, `${where}: row ends ${l.top + l.size - height} past the bottom edge`);
-        // The label sits inside its swatch, so it is in bounds whenever the swatch is.
-        check(l.inset >= 0 && l.inset < l.size, `${where}: label inset ${l.inset} is not inside a ${l.size} swatch`);
         check(l.radius * 2 <= l.size + 1e-9, `${where}: corner radius ${l.radius} too big for a ${l.size} swatch`);
+
+        // Every label is centred in its own swatch, which is what keeps it legible: the
+        // text colour is chosen for the swatch behind it, so a label that drifts onto the
+        // page becomes white text on a white background.
+        for (let i = 0; i < count; i++) {
+            const c = swatchCenter(l, i);
+            const swatchLeft = l.left + i * (l.size + l.gap);
+            check(
+                Math.abs(c.x - (swatchLeft + l.size / 2)) < 1e-9 && Math.abs(c.y - (l.top + l.size / 2)) < 1e-9,
+                `${where}: label ${i} is not centred in its swatch`
+            );
+            check(
+                c.x >= 0 && c.x <= width && c.y >= 0 && c.y <= height,
+                `${where}: label ${i} centres outside the page at ${c.x},${c.y}`
+            );
+        }
         check(l.fontSize > 0, `${where}: font size ${l.fontSize}`);
     }
 }

@@ -2,7 +2,7 @@ import addOnSandboxSdk from "add-on-sdk-document-sandbox";
 import { AvailableFont, Color, colorUtils, constants, editor, fonts } from "express-document-sdk";
 import { BUILD } from "../shared/build";
 import { BrandColor, nearestBrandColor, normalizeHex, readableTextOn } from "../shared/color";
-import { paletteLayout } from "../shared/paletteLayout";
+import { paletteLayout, swatchCenter } from "../shared/paletteLayout";
 import {
     ApplyFontResult,
     AuditColor,
@@ -271,11 +271,8 @@ function start(): void {
             if (palette.length === 0) return;
             const page = editor.context.currentPage;
             const parent = currentArtboard() ?? editor.context.insertionParent;
-            const { size, gap, left, top, inset, radius, fontSize } = paletteLayout(
-                palette.length,
-                page.width,
-                page.height
-            );
+            const layout = paletteLayout(palette.length, page.width, page.height);
+            const { size, gap, left, top, radius, fontSize } = layout;
 
             palette.forEach((brandColor, i) => {
                 const x = left + i * (size + gap);
@@ -294,7 +291,11 @@ function start(): void {
                     fontSize,
                     color: colorUtils.fromHex(readableTextOn(brandColor.hex))
                 });
-                label.setPositionInParent({ x: x + inset, y: top + inset }, { x: 0, y: 0 });
+                label.textAlignment = constants.TextAlignment.center;
+                // Placed by its centre, and only once it is styled: a text node's own origin
+                // sits on its first baseline, so aligning a corner of it to a corner of the
+                // swatch hangs the label above the swatch instead of sitting it inside.
+                label.setPositionInParent(swatchCenter(layout, i), label.centerPointLocal);
             });
         },
 

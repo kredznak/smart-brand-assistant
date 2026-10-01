@@ -14,8 +14,6 @@ export interface PaletteLayout {
     /** Left edge of the first swatch, in page coordinates. */
     left: number;
     top: number;
-    /** Offset from a swatch's top-left corner to its label. */
-    inset: number;
     radius: number;
     fontSize: number;
 }
@@ -44,10 +42,19 @@ export function paletteLayout(count: number, pageWidth: number, pageHeight: numb
         gap,
         left: (width - rowWidth) / 2,
         top: Math.min(margin, height - size),
-        inset: size * 0.1,
         radius: Math.min(12, size / 10),
         // Floored because Express refuses a font size below a point or so, which only
         // comes up on a page too small to read a label on anyway.
         fontSize: Math.max(6, Math.min(14, size / 8.5))
     };
+}
+
+/**
+ * The middle of swatch `i`, which is where its label goes. A text node's own origin sits
+ * on its first baseline rather than at the top-left of its bounds, so a label is placed
+ * by its centre point: positioning it by a corner puts it above the swatch instead.
+ */
+export function swatchCenter(layout: PaletteLayout, i: number): { x: number; y: number } {
+    const { left, top, size, gap } = layout;
+    return { x: left + i * (size + gap) + size / 2, y: top + size / 2 };
 }
