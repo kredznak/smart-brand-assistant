@@ -26,7 +26,10 @@ const EXPECTED = [
     ["Scan fonts on this page", /off-brand font/],
     ["Fix 1 off-brand font", /^Updated/],
     ["Scan colors on this page", /off-brand color/],
-    ["Fix 1 off-brand color", /^Updated/]
+    ["Fix 1 off-brand color", /^Updated/],
+    // An unsupported file must be named and refused, leaving no preview to break.
+    ["Reject a TIFF", /^TIFF files are not supported\./],
+    ["Accept a PNG", /^preview shown: \(no message\)$/]
 ];
 
 const CHROME =

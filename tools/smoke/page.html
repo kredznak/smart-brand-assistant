@@ -51,6 +51,35 @@
     await press("Scan colors on this page");
     await press("Fix 1 off-brand color");
 
+    // Adobe's review found that choosing a .tiff left a broken image in the preview
+    // instead of saying the format is not supported, so the upload screen is driven with
+    // a real file input: a rejected file must leave no preview behind, and an accepted
+    // one must still be previewed -- a check that only refuses would pass if the panel
+    // started refusing everything. Last, because reaching it clears the brand kit.
+    const bytes = b64 => Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    // Smallest valid 1x1 PNG, so the preview has something it can actually decode.
+    const PNG = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFAAH/q842iQAAAABJRU5ErkJggg==";
+
+    const choose = async (label, file) => {
+        if (!document.querySelector('input[type="file"]')) {
+            await openTab("Colors");
+            button("Analyze a different logo")?.click();
+            await sleep(500);
+        }
+        const input = document.querySelector('input[type="file"]');
+        if (!input) { out.steps.push([label, "FILE INPUT NOT FOUND"]); return; }
+        const data = new DataTransfer();
+        data.items.add(file);
+        input.files = data.files;
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+        await sleep(600);
+        const preview = document.querySelector(".logoCard img");
+        out.steps.push([label, preview ? `preview shown: ${status() || "(no message)"}` : status()]);
+    };
+
+    await choose("Reject a TIFF", new File([bytes("SUkqAA==")], "logo.tiff", { type: "image/tiff" }));
+    await choose("Accept a PNG", new File([bytes(PNG)], "logo.png", { type: "image/png" }));
+
     out.errors = window.__errors;
     out.called = [...new Set(window.__called)];
     document.getElementById("result").textContent = "@@" + JSON.stringify(out) + "@@";

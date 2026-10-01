@@ -44,6 +44,25 @@ type Tab = "kit" | "fonts" | "copy" | "audit";
 // brand the user has already moved on from.
 const EMPTY_VOICE: BrandVoice = { brandName: "", description: "", tone: "Friendly" };
 
+// The file picker's `accept` list is only the default filter: on every platform the user
+// can switch it to all files and choose anything, so whatever comes back is checked here
+// too. Without this a TIFF reaches the preview, which cannot decode it and shows a broken
+// image instead of saying what is wrong.
+const LOGO_TYPES = ["image/png", "image/jpeg", "image/svg+xml", "image/webp"];
+const LOGO_EXTENSIONS = [".png", ".jpg", ".jpeg", ".svg", ".webp"];
+const LOGO_FORMATS = "Choose a PNG, JPG, SVG or WebP.";
+
+/** Null if the file is a logo this add-on can read, otherwise why it cannot. */
+function unsupportedLogo(file: File): string | null {
+    const dot = file.name.lastIndexOf(".");
+    const extension = dot > 0 ? file.name.slice(dot).toLowerCase() : "";
+    if (LOGO_TYPES.includes(file.type)) return null;
+    // Some systems report no type at all, SVG especially, so the name decides those.
+    if (!file.type && LOGO_EXTENSIONS.includes(extension)) return null;
+    const named = extension ? `${extension.slice(1).toUpperCase()} files are not supported.` : "That file is not an image we can read.";
+    return `${named} ${LOGO_FORMATS}`;
+}
+
 const TABS: { id: Tab; label: string }[] = [
     { id: "kit", label: "Colors" },
     { id: "fonts", label: "Fonts" },
@@ -353,7 +372,16 @@ const App = ({ addOnUISdk, sandboxProxy }: { addOnUISdk: AddOnSDKAPI; sandboxPro
                 <div className="body">
                     {preview && (
                         <div className="logoCard">
-                            <img src={preview} alt="Logo preview" />
+                            {/* A file can carry a supported type and still not decode, so the
+                                preview failing drops the file rather than leaving a broken image. */}
+                            <img
+                                src={preview}
+                                alt="Logo preview"
+                                onError={() => {
+                                    setFile(null);
+                                    setStatus(`That file could not be read as an image. ${LOGO_FORMATS}`);
+                                }}
+                            />
                         </div>
                     )}
                     <input
@@ -362,8 +390,12 @@ const App = ({ addOnUISdk, sandboxProxy }: { addOnUISdk: AddOnSDKAPI; sandboxPro
                         accept="image/png,image/jpeg,image/svg+xml,image/webp"
                         hidden
                         onChange={e => {
-                            setFile(e.target.files?.[0] ?? null);
-                            setStatus("");
+                            const chosen = e.target.files?.[0] ?? null;
+                            const problem = chosen ? unsupportedLogo(chosen) : null;
+                            // Cleared either way, so picking the same file again still fires a change.
+                            e.target.value = "";
+                            setFile(problem ? null : chosen);
+                            setStatus(problem ?? "");
                         }}
                     />
                     <div className="fileRow">
