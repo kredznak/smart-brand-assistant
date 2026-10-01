@@ -2,6 +2,7 @@ import addOnSandboxSdk from "add-on-sdk-document-sandbox";
 import { AvailableFont, Color, colorUtils, constants, editor, fonts } from "express-document-sdk";
 import { BUILD } from "../shared/build";
 import { BrandColor, nearestBrandColor, normalizeHex, readableTextOn } from "../shared/color";
+import { paletteLayout } from "../shared/paletteLayout";
 import {
     ApplyFontResult,
     AuditColor,
@@ -179,6 +180,25 @@ function pageRoots(): Iterable<any> {
     return editor.context.currentPage.artboards;
 }
 
+/**
+ * The artboard holding whatever Express would insert into next. Positions are measured
+ * against a node's parent, so content meant to land at a known place on the page has to
+ * go into the artboard itself: `insertionParent` is whatever the user's selection makes
+ * it, and a group sitting half off the canvas would take the content with it.
+ */
+function currentArtboard(): any | null {
+    let node: any = editor.context.insertionParent;
+    while (node) {
+        if (node.type === constants.SceneNodeType.artboard) return node;
+        try {
+            node = node.parent;
+        } catch {
+            break;
+        }
+    }
+    return editor.context.currentPage.artboards.first ?? null;
+}
+
 function start(): void {
     const sandboxApi: DocumentSandboxApi = {
         build: () => BUILD,
@@ -248,27 +268,33 @@ function start(): void {
         },
 
         addPaletteToPage(palette: BrandColor[]): void {
-            const parent = editor.context.insertionParent;
-            const size = 120;
-            const gap = 16;
+            if (palette.length === 0) return;
+            const page = editor.context.currentPage;
+            const parent = currentArtboard() ?? editor.context.insertionParent;
+            const { size, gap, left, top, inset, radius, fontSize } = paletteLayout(
+                palette.length,
+                page.width,
+                page.height
+            );
+
             palette.forEach((brandColor, i) => {
-                const x = 40 + i * (size + gap);
+                const x = left + i * (size + gap);
                 const swatch = editor.createRectangle();
                 swatch.width = size;
                 swatch.height = size;
-                swatch.topLeftRadius = swatch.topRightRadius = 12;
-                swatch.bottomLeftRadius = swatch.bottomRightRadius = 12;
+                swatch.topLeftRadius = swatch.topRightRadius = radius;
+                swatch.bottomLeftRadius = swatch.bottomRightRadius = radius;
                 swatch.fill = editor.makeColorFill(colorUtils.fromHex(brandColor.hex));
-                swatch.translation = { x, y: 40 };
                 parent.children.append(swatch);
+                swatch.setPositionInParent({ x, y: top }, { x: 0, y: 0 });
 
                 const label = editor.createText(`${brandColor.role}\n${brandColor.hex}`);
                 parent.children.append(label);
                 label.fullContent.applyCharacterStyles({
-                    fontSize: 14,
+                    fontSize,
                     color: colorUtils.fromHex(readableTextOn(brandColor.hex))
                 });
-                label.setPositionInParent({ x: x + 12, y: 52 }, { x: 0, y: 0 });
+                label.setPositionInParent({ x: x + inset, y: top + inset }, { x: 0, y: 0 });
             });
         },
 
@@ -394,7 +420,8 @@ function start(): void {
                     loaded = await loadFonts([style.postscriptName]);
                 },
                 () => {
-                    const parent = editor.context.insertionParent;
+                    const page = editor.context.currentPage;
+                    const parent = currentArtboard() ?? editor.context.insertionParent;
                     const node = editor.createText(text);
                     parent.children.append(node);
                     const font = style.postscriptName ? loaded.get(style.postscriptName) : undefined;
@@ -403,17 +430,22 @@ function start(): void {
                         ...(style.hex ? { color: colorUtils.fromHex(style.hex) } : {}),
                         fontSize: style.fontSize ?? 32
                     });
-                    // Wrap long copy to the page width instead of running off the canvas in one line.
-                    const page = editor.context.currentPage;
-                    const maxWidth = Math.max(200, page.width - 80);
-                    if (text.length > 40) {
+
+                    // Wrap long copy to the page width instead of running off the canvas in one
+                    // line. Measured as well as counted, because a short line in a large size
+                    // overruns a narrow page just as easily as a long one does.
+                    const margin = Math.min(40, page.width * 0.05, page.height * 0.05);
+                    const maxWidth = page.width - margin * 2;
+                    if (text.length > 40 || node.boundsLocal.width > maxWidth) {
                         try {
                             node.layout = { type: constants.TextLayout.autoHeight, width: maxWidth };
                         } catch (e) {
                             console.log("Could not wrap the text:", e);
                         }
                     }
-                    node.setPositionInParent({ x: 40, y: 200 }, { x: 0, y: 0 });
+                    // A fifth of the way down the page, but never below its bottom edge.
+                    const y = Math.max(margin, Math.min(page.height * 0.2, page.height - margin - node.boundsLocal.height));
+                    node.setPositionInParent({ x: margin, y }, { x: 0, y: 0 });
                 }
             );
         },

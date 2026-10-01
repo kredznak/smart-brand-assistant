@@ -7,7 +7,7 @@
         "build": "ccweb-add-on-scripts build --use webpack",
         "start": "ccweb-add-on-scripts start --use webpack",
         "package": "ccweb-add-on-scripts package --use webpack",
-        "smoke": "node tools/smoke/sandbox-apis.test.mjs && node tools/smoke/guard.test.mjs && node tools/smoke/run.mjs",
+        "smoke": "node tools/smoke/sandbox-apis.test.mjs && node tools/smoke/guard.test.mjs && node tools/smoke/palette-layout.test.mjs && node tools/smoke/run.mjs",
         "privacy": "node tools/build-privacy.mjs",
         "pages": "node tools/build-privacy.mjs",
         "safety": "node tools/content-safety.test.mjs",
